@@ -95,5 +95,6 @@ CacheWord convertToCacheWord(WordDto dto) {
     null,
     audio,
     meanings,
+    false
   );
 }

@@ -24,6 +24,7 @@ class WordViewModel extends ChangeNotifier {
   List<WordDto> words = [];
   List<WordScoreDto> sgtWords = [];
   List<CacheWord> searchedWords = [];
+  List<CacheWord> favoriteWords = [];
   Timer? _debounce;
 
   WordViewModel(
@@ -34,6 +35,27 @@ class WordViewModel extends ChangeNotifier {
     this.searchedWordRepository,
   ) {
     getAllSearchedWords();
+    getAllFavoriteWords();
+  }
+
+  Future<void> getAllFavoriteWords() async {
+    favoriteWords = searchedWords.map((e) {
+      if(e.isFavorite == true) {
+        return e;
+      }
+    },).whereType<CacheWord>().toList();
+    notifyListeners();
+  }
+
+  Future<void> toggleFavorite(CacheWord word) async {
+    final newStatus = !(word.isFavorite ?? false);
+    final key = cacheWordRepository.getKeyByWord(word.word);
+    if (key != null) {
+      await cacheWordRepository.updateFavoriteStatus(key, newStatus);
+      await getAllFavoriteWords();
+      log("length: ${favoriteWords.length}");
+      notifyListeners();
+    }
   }
 
   Future<void> getAllSearchedWords() async {

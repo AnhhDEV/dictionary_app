@@ -25,7 +25,7 @@ class CacheWordRepository {
   CacheWord? getByKey(int key) {
     return _box.get(key);
   }
-  
+
   int? getKeyByWord(String word) {
     try {
       return _box.keys
@@ -33,6 +33,14 @@ class CacheWordRepository {
           .firstWhere((key) => _box.get(key)?.word == word);
     } catch(e) {
       return null;
+    }
+  }
+
+  Future<void> updateFavoriteStatus(int key, bool isFavorite) async {
+    final word = _box.get(key);
+    if (word != null) {
+      word.isFavorite = isFavorite;
+      await word.save();
     }
   }
 

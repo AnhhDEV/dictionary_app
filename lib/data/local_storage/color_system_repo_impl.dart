@@ -9,13 +9,11 @@ class ColorSystemRepository {
 
   ColorSystemRepository._internal();
 
-  @override
   Future<bool?> getBrightnessMode() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(Alias.brightnessAlias);
   }
 
-  @override
   Future<void> setBrightnessMode(bool isDark) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(Alias.brightnessAlias, isDark);

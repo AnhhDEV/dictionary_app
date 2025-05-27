@@ -39,7 +39,17 @@ class HistoryPage extends StatelessWidget {
                         Text(
                           viewModel.searchedWords[i].phonetic ?? '',
                           style: KTextStyle.textStyle16,
-                        )
+                        ),
+                        Expanded(flex: 1, child: SizedBox()),
+                        IconButton(
+                          onPressed: () {
+                            viewModel.toggleFavorite(viewModel.searchedWords[i]);
+                          },
+                          icon:
+                          viewModel.searchedWords[i].isFavorite ?? false
+                              ? Icon(Icons.favorite)
+                              : Icon(Icons.favorite_border),
+                        ),
                       ],
                     ),
                   ),

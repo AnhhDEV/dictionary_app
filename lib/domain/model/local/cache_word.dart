@@ -15,6 +15,8 @@ class CacheWord extends HiveObject {
   final String? audio;
   @HiveField(4)
   final List<CacheMeaning> meanings;
+  @HiveField(5)
+  bool? isFavorite;
 
   CacheWord(
     this.word,
@@ -22,5 +24,6 @@ class CacheWord extends HiveObject {
     this.text,
     this.audio,
     this.meanings,
+    this.isFavorite,
   );
 }
