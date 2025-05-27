@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
+part 'cache_meaning.g.dart';
+
 @HiveType(typeId: 0)
 class CacheMeaning {
 

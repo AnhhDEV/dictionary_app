@@ -1,3 +1,5 @@
+import 'package:dictionary/data/local_storage/cache_word_repo.dart';
+import 'package:dictionary/data/local_storage/searched_word_repo.dart';
 import 'package:dictionary/data/networking/ApiProvider.dart';
 import 'package:dictionary/data/service/navigator.dart';
 import 'package:dictionary/domain/view_model/system_viewmodel.dart';
@@ -11,12 +13,16 @@ class WidgetTree extends StatelessWidget {
   final ApiProvider api;
   final NavigationService navigationService;
   final AudioPlayer audioPlayer;
+  final SearchedWordRepository searchRepo;
+  final CacheWordRepository cacheRepo;
 
   const WidgetTree({
     super.key,
     required this.api,
     required this.navigationService,
     required this.audioPlayer,
+    required this.searchRepo,
+    required this.cacheRepo,
   });
 
   @override
@@ -24,11 +30,18 @@ class WidgetTree extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => WordViewModel(navigationService, api, audioPlayer),
+          create:
+              (_) => WordViewModel(
+                navigationService,
+                api,
+                audioPlayer,
+                cacheRepo,
+                searchRepo,
+              ),
         ),
         ChangeNotifierProvider(create: (_) => SystemViewModel()),
       ],
-      child: RootApp(navigationService: navigationService)
+      child: RootApp(navigationService: navigationService),
     );
   }
 }

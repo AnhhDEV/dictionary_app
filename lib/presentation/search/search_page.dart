@@ -78,7 +78,7 @@ class _SearchPageState extends State<SearchPage> {
                 return InkWell(
                   splashColor: Colors.white60,
                   onTap: () {
-                    wordViewModel.onNavToDetail(wordViewModel.words[i]);
+                    wordViewModel.onNavToDetail(wordViewModel.words[i], null);
                   },
                   child: Column(
                     children: [

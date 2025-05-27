@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:dictionary/domain/model/dto/phonetic.dart';
 import 'package:dictionary/util/string_handle.dart';
 
+import '../local/cache_meaning.dart';
+import '../local/cache_word.dart';
 import 'meaning.dart';
 
 class WordDto {
@@ -71,4 +73,27 @@ extension WordExtension on WordDto {
     }
     return null;
   }
+}
+
+CacheWord convertToCacheWord(WordDto dto) {
+  final phonetic = dto.getPhonetic();
+
+  final audio = dto.getUrlAudio();
+
+  final meanings = dto.meanings.map((m) {
+    return CacheMeaning(
+      partOfSpeech: m.partOfSpeech,
+      definitions: m.definitions.map((d) => d.definition).toList(),
+      synonyms: m.synonyms,
+      antonyms: m.antonyms,
+    );
+  }).toList();
+
+  return CacheWord(
+    dto.word,
+    phonetic,
+    null,
+    audio,
+    meanings,
+  );
 }
