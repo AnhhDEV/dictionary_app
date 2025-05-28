@@ -22,9 +22,9 @@ class KTextStyle {
   );
 
   static final List<Color> cardColors = [
-    Color(0xFFffd01c), // Vàng sáng
+    // Color(0xFFffd01c), // Vàng sáng
     Color(0xFF6ee778), // Xanh lá chanh
-    Color(0xFFFFA500), // Cam sáng
+    // Color(0xFFFFA500), // Cam sáng
     Color(0xFFFF4F87), // Hồng neon
     Color(0xFF00BFFF), // Xanh dương sáng
     Color(0xFFDA70D6), // Tím sáng

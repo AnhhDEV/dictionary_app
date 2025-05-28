@@ -8,7 +8,8 @@ class DeckPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<FlashcardViewModel>(context);
+
+    final FlashcardViewModel viewModel = Provider.of<FlashcardViewModel>(context, listen: true);
 
     return Scaffold(
       appBar: AppBar(title: Text('Decks'), centerTitle: true),
@@ -79,6 +80,18 @@ class DeckPage extends StatelessWidget {
                         ),
                         Text(
                           'Number of cards: ${viewModel.decks[index].flashcardKeys.length}',
+                          style: KTextStyle.textStyle14,
+                        ),
+                        Text(
+                          'Not learned words: ${viewModel.counts[index].notLearned}',
+                          style: KTextStyle.textStyle14,
+                        ),
+                        Text(
+                          'Fuzzy words: ${viewModel.counts[index].fuzzy}',
+                          style: KTextStyle.textStyle14,
+                        ),
+                        Text(
+                          'Learned words: ${viewModel.counts[index].remembered}',
                           style: KTextStyle.textStyle14,
                         )
                       ],

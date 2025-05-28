@@ -3,6 +3,7 @@ import 'package:dictionary/domain/view_model/system_viewmodel.dart';
 import 'package:dictionary/domain/view_model/word_viewmodel.dart';
 import 'package:dictionary/util/k_textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 class SearchPage extends StatefulWidget {
@@ -71,11 +72,13 @@ class _SearchPageState extends State<SearchPage> {
           //words
           SizedBox(height: 12),
           Expanded(
-            child: ListView.builder(
+            child: wordViewModel.words.isEmpty ? Center(
+              child: Lottie.asset('assets/lotties/empty-box.json'),
+            ) : ListView.builder(
               itemCount: wordViewModel.words.length,
               shrinkWrap: true,
               itemBuilder: (context, i) {
-                return InkWell(
+                  return InkWell(
                   splashColor: Colors.white60,
                   onTap: () {
                     wordViewModel.onNavToDetail(wordViewModel.words[i], null);
