@@ -21,7 +21,7 @@ void main() async {
   //audio
   final player = AudioPlayer();
   //hive
-  final (cacheRepo, searchRepo) = await LocalDatabaseService.init();
+  final (cacheRepo, searchRepo, flashcardRepo, deckRepo) = await LocalDatabaseService.init();
 
   runApp(
     WidgetTree(
@@ -29,7 +29,9 @@ void main() async {
       navigationService: navigationService,
       audioPlayer: player,
       cacheRepo: cacheRepo,
-      searchRepo: searchRepo
+      searchRepo: searchRepo,
+      flashCardRepository: flashcardRepo,
+      deckRepository: deckRepo
     ),
   );
 }

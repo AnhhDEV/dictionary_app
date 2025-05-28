@@ -1,6 +1,7 @@
 import 'package:dictionary/data/service/navigator.dart';
 import 'package:dictionary/domain/view_model/system_viewmodel.dart';
 import 'package:dictionary/presentation/favorite/favorite_page.dart';
+import 'package:dictionary/presentation/flash_card/deck_page.dart';
 import 'package:dictionary/presentation/history/history_page.dart';
 import 'package:dictionary/presentation/home/home_page.dart';
 import 'package:dictionary/presentation/search/search_page.dart';
@@ -35,7 +36,8 @@ class RootApp extends StatelessWidget {
             HomePage(),
             SearchPage(),
             HistoryPage(),
-            FavoritePage()
+            FavoritePage(),
+            DeckPage()
           ],
         ),
         bottomNavigationBar: NavigationBar(
@@ -44,6 +46,7 @@ class RootApp extends StatelessWidget {
             NavigationDestination(icon: Icon(Icons.search), label: 'Search'),
             NavigationDestination(icon: Icon(Icons.history), label: 'History'),
             NavigationDestination(icon: Icon(Icons.favorite), label: 'Favorite'),
+            NavigationDestination(icon: Icon(Icons.flash_auto), label: 'Deck'),
           ],
           onDestinationSelected: (value) {
             viewModel.onChangeIndex(value);

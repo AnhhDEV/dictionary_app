@@ -1,5 +1,6 @@
 import 'package:dictionary/domain/model/dto/word_model.dart';
 import 'package:dictionary/domain/model/local/cache_word.dart';
+import 'package:dictionary/domain/view_model/flashcard_viewmodel.dart';
 import 'package:dictionary/domain/view_model/word_viewmodel.dart';
 import 'package:dictionary/util/k_textstyle.dart';
 import 'package:flutter/material.dart';
@@ -17,21 +18,27 @@ class DetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final wordViewModel = Provider.of<WordViewModel>(context);
+    final flashcardViewModel = Provider.of<FlashcardViewModel>(context);
 
+    final decks = flashcardViewModel.decks;
     final titleWord = word?.word ?? cacheWord?.word ?? '';
     final audioUrl = word?.getUrlAudio() ?? cacheWord?.audio;
     final phoneticText = word?.getPhonetic() ?? cacheWord?.phonetic ?? '';
 
-    final meanings = word?.meanings ??
+    final meanings =
+        word?.meanings ??
         cacheWord?.meanings
-            .map((m) => MeaningDto(
-          partOfSpeech: m.partOfSpeech,
-          definitions: m.definitions
-              .map((d) => DefinitionDto(definition: d))
-              .toList(),
-          synonyms: m.synonyms,
-          antonyms: m.antonyms,
-        ))
+            .map(
+              (m) => MeaningDto(
+                partOfSpeech: m.partOfSpeech,
+                definitions:
+                    m.definitions
+                        .map((d) => DefinitionDto(definition: d))
+                        .toList(),
+                synonyms: m.synonyms,
+                antonyms: m.antonyms,
+              ),
+            )
             .toList() ??
         [];
 
@@ -41,9 +48,33 @@ class DetailPage extends StatelessWidget {
         title: Text(titleWord),
         centerTitle: true,
         actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.star, color: Colors.yellowAccent),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: PopupMenuButton(
+              itemBuilder: (context) {
+                return flashcardViewModel.decks.asMap().entries.map((deck) {
+                  final index = deck.key;
+                  final name = deck.value.name;
+
+                  return PopupMenuItem<(int, String)>(
+                    value: (index, name),
+                    child: Text(name),
+                  );
+                }).toList();
+              },
+              onSelected: ((int, String) value) {
+                final int index = value.$1;
+                flashcardViewModel.addFlashcardToDeck(
+                  titleWord,
+                  audioUrl ?? '',
+                  phoneticText,
+                  meanings.map((e) => e.toCacheMeaning()).toList().first,
+                  "",
+                  flashcardViewModel.decks[index],
+                );
+              },
+              child: Icon(Icons.save),
+            ),
           ),
         ],
         backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
@@ -86,29 +117,43 @@ class DetailPage extends StatelessWidget {
                       SizedBox(height: 5),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: meaning.definitions.asMap().entries.map((entry) {
-                          final defIndex = entry.key;
-                          final def = entry.value;
+                        children:
+                            meaning.definitions.asMap().entries.map((entry) {
+                              final defIndex = entry.key;
+                              final def = entry.value;
 
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(def.definition, style: TextStyle(fontSize: 16)),
-                              if (def.example != null && def.example!.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 6, top: 2),
-                                  child: Text('• ${def.example}', style: KTextStyle.textStyle16),
-                                ),
-                              SizedBox(height: 10),
-                              if (defIndex < meaning.definitions.length - 1)
-                                Divider(
-                                  thickness: 1,
-                                  color: Theme.of(context).colorScheme.secondary,
-                                ),
-                              SizedBox(height: 10),
-                            ],
-                          );
-                        }).toList(),
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    def.definition,
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  if (def.example != null &&
+                                      def.example!.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 6,
+                                        top: 2,
+                                      ),
+                                      child: Text(
+                                        '• ${def.example}',
+                                        style: KTextStyle.textStyle16,
+                                      ),
+                                    ),
+                                  SizedBox(height: 10),
+                                  if (defIndex < meaning.definitions.length - 1)
+                                    Divider(
+                                      thickness: 1,
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.secondary,
+                                    ),
+                                  SizedBox(height: 10),
+                                ],
+                              );
+                            }).toList(),
                       ),
                       if (index < meanings.length - 1)
                         Divider(
@@ -125,5 +170,4 @@ class DetailPage extends StatelessWidget {
       ),
     );
   }
-
 }
