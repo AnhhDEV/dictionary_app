@@ -33,8 +33,8 @@ class DeckRepository {
   }
 
   //remove deck
-  Future<void> removeDeck(int deckKey) async {
-    await _box.delete(deckKey);
+  Future<void> removeDeck(Deck deck) async {
+    await deck.delete();
   }
 
   //remove flashcard from deck

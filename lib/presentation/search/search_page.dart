@@ -15,15 +15,13 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
 
-  late final FocusNode _searchFocusNode;
+  final noteFocusNode = FocusNode();
+  
 
   @override
-  void initState() {
-    super.initState();
-    _searchFocusNode = FocusNode();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _searchFocusNode.unfocus();
-    });
+  void dispose() {
+    noteFocusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -55,7 +53,8 @@ class _SearchPageState extends State<SearchPage> {
             color: Theme.of(context).colorScheme.primaryContainer,
             padding: const EdgeInsets.only(left: 12, right: 12, bottom: 12),
             child: SearchBar(
-              focusNode: _searchFocusNode,
+              autoFocus: false,
+              focusNode: noteFocusNode,
               controller: wordViewModel.wordController,
               keyboardType: TextInputType.text,
               leading: Icon(Icons.search),

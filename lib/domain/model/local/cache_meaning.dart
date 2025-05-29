@@ -16,4 +16,14 @@ class CacheMeaning {
   final List<String> antonyms;
 
   CacheMeaning({required this.partOfSpeech, required this.definitions, required this.synonyms, required this.antonyms});
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is CacheMeaning &&
+              runtimeType == other.runtimeType &&
+              partOfSpeech == other.partOfSpeech;
+
+  @override
+  int get hashCode => partOfSpeech.hashCode;
 }

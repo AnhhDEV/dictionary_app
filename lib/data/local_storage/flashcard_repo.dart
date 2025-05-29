@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dictionary/domain/model/local/word_flashcard.dart';
 import 'package:hive/hive.dart';
 
@@ -11,6 +13,10 @@ class FlashCardRepository {
 
   Future<int> add(WordFlashcard word) async {
     return await _box.add(word);
+  }
+
+  removeFlashcard(int key) {
+    _box.delete(key);
   }
 
   WordFlashcard? getByKey(String key) {
@@ -52,42 +58,59 @@ class FlashCardRepository {
         .map((key) => _box.get(key))
         .whereType<WordFlashcard>()
         .where((card) =>
-    card.reviewCount == 0 || card.nextReviewed.isBefore(now) || card.nextReviewed.isAtSameMomentAs(now))
+    card.reviewCount == 0 || card.nextReviewed.isBefore(now) ||
+        card.nextReviewed.isAtSameMomentAs(now))
         .toList();
   }
 
   //update
-  void updateFlashcardAfterReview(WordFlashcard card, int quality) {
+  void updateReviewSchedule(WordFlashcard card, int quality) {
     final now = DateTime.now();
 
-    if(quality < 2) {
-      card.interval = 1;
-      card.easeFactor = (card.easeFactor - 0.2).clamp(1.3, double.infinity);
-    } else {
-      if(card.reviewCount == 0) {
-        card.interval = 1;
-      } else if(card.reviewCount == 1) {
-        card.interval = 3;
+    if (quality == 0) {
+      // Quên hoàn toàn, lặp lại sau 10 phút
+      card.reviewCount = 0;
+      card.interval = 0;
+      card.nextReviewed = now.add(Duration(minutes: 10));
+    } else if (quality == 1) {
+      // Gợi nhớ mơ hồ, lặp lại sau 30 phút
+      card.reviewCount = 0;
+      card.interval = 0;
+      card.nextReviewed = now.add(Duration(minutes: 30));
+    } else if (quality == 2) {
+      // Nhớ tạm được
+      if (card.reviewCount == 0) {
+        // Lần đầu nhớ tạm, lặp lại sau 1 tiếng
+        card.reviewCount = 1;
+        card.interval = 0;
+        card.nextReviewed = now.add(Duration(hours: 1));
       } else {
-        card.interval = (card.interval * card.easeFactor).round();
+        // Các lần sau, vẫn để interval 1 ngày để học chắc lại
+        card.reviewCount = 1;
+        card.interval = 1;
+        card.nextReviewed = now.add(Duration(days: 1));
       }
-
-      card.easeFactor += (0.1 - (3 - quality) * (0.08 + (3 - quality) * 0.02));
-      card.easeFactor = card.easeFactor.clamp(1.3, double.infinity);
+    } else if (quality == 3) {
+      // Nhớ rõ, tăng dần số ngày
+      card.reviewCount += 1;
+      if (card.reviewCount == 1) {
+        card.interval = 1;
+      } else if (card.reviewCount == 2) {
+        card.interval = 3;
+      } else if (card.reviewCount == 3) {
+        card.interval = 7;
+      } else {
+        card.interval = (card.interval * 2.5).round(); // hoặc dùng easeFactor nếu muốn
+      }
+      card.nextReviewed = now.add(Duration(days: card.interval));
     }
-
-    card.reviewCount += 1;
-    card.lastReviewed = now;
-    card.nextReviewed = now.add(Duration(days: card.interval));
-
-    if(quality == 0) {
+    if (card.reviewCount == 0) {
       card.rememberLevel = 0;
-    } else if(quality == 1) {
-      card.rememberLevel = 1;
-    } else {
+    } else if (card.interval >= 7) {
       card.rememberLevel = 2;
+    } else {
+      card.rememberLevel = 1;
     }
-    card.save();
+    card.lastReviewed = now;
   }
-
 }

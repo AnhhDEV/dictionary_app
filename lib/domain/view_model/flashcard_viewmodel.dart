@@ -7,6 +7,7 @@ import 'package:dictionary/domain/model/local/cache_meaning.dart';
 import 'package:dictionary/domain/model/local/deck.dart';
 import 'package:dictionary/domain/model/local/flashcard_status_count.dart';
 import 'package:dictionary/domain/model/local/word_flashcard.dart';
+import 'package:dictionary/presentation/flash_card/add_card_page.dart';
 import 'package:dictionary/presentation/flash_card/flashcard_page.dart';
 import 'package:flutter/widgets.dart';
 import 'package:just_audio/just_audio.dart';
@@ -21,14 +22,23 @@ class FlashcardViewModel extends ChangeNotifier {
   //textfield
   TextEditingController name = TextEditingController();
   TextEditingController description = TextEditingController();
-
-  int currentPage = 0;
+  TextEditingController note = TextEditingController();
 
   //state
+  int currentPage = 0;
   List<Deck> decks = [];
   List<WordFlashcard> flashcards = [];
   List<WordFlashcard> studiesCards = [];
   List<FlashcardStatusCount> counts = [];
+  CacheMeaning? selectedMeaning;
+
+  @override
+  void dispose() {
+    name.dispose();
+    note.dispose();
+    description.dispose();
+    super.dispose();
+  }
 
   FlashcardViewModel(
     this._deckRepo,
@@ -39,14 +49,50 @@ class FlashcardViewModel extends ChangeNotifier {
     getAllDecks();
   }
 
+  Future<void> createFlashcard(Deck deck, String word, String pos, String note) async {
+    WordFlashcard flashcard = WordFlashcard(
+      word,
+      '',
+      CacheMeaning(antonyms: [], definitions: [], partOfSpeech: pos, synonyms: []),
+      note,
+      DateTime.now(),
+      '',
+      0,
+      0,
+      DateTime.now(),
+      DateTime.now(),
+      0,
+      2.5,
+    );
+    int key = await _flashCardRepo.add(flashcard);
+    int? deckKey =  _deckRepo.getKeyOfDeck(deck);
+    if(deckKey == null) {
+      _navigationService.showSnackBar('Oops');
+    } else {
+      await _deckRepo.addFlashcardToDeck(deckKey, key);
+      _navigationService.goBack();
+      _navigationService.showSnackBar('Create successfully');
+    }
+  }
+
+  Future<void> removeDeck(Deck deck) async {
+    final keys = deck.flashcardKeys;
+    await _deckRepo.removeDeck(deck);
+    for (var key in keys) {
+      _flashCardRepo.removeFlashcard(key);
+    }
+    getAllDecks();
+    notifyListeners();
+  }
+
   Future<void> getStatus(int index, List<int> flashcardKeys) async {
     var count = _flashCardRepo.countFlashcardByLearningStatus(flashcardKeys);
     counts.add(count);
-    log('${count.remembered}, ${count.notLearned}, ${count.fuzzy}');
+    // log('${count.remembered}, ${count.notLearned}, ${count.fuzzy}');
   }
 
   updateStatusOfFlashcard(WordFlashcard card, int quality) {
-    _flashCardRepo.updateFlashcardAfterReview(card, quality);
+    _flashCardRepo.updateReviewSchedule(card, quality);
     notifyListeners();
   }
 
@@ -78,15 +124,17 @@ class FlashcardViewModel extends ChangeNotifier {
     String word,
     String audio,
     String phonetic,
-    CacheMeaning meaning,
-    String note,
     Deck deck,
   ) async {
+    if(selectedMeaning == null) {
+      _navigationService.showSnackBar('Adding unsuccessfully');
+      return;
+    }
     WordFlashcard flashcard = WordFlashcard(
       word,
       phonetic,
-      meaning,
-      note,
+      selectedMeaning!,
+      note.text,
       DateTime.now(),
       audio,
       0,
@@ -96,12 +144,12 @@ class FlashcardViewModel extends ChangeNotifier {
       0,
       2.5,
     );
-    log('flashcard: ${flashcard.word}');
     final deckKey = _deckRepo.getKeyOfDeck(deck);
     final flashcardKey = await _flashCardRepo.add(flashcard);
 
     if (deckKey != null) {
       _deckRepo.addFlashcardToDeck(deckKey, flashcardKey);
+      pop();
       _navigationService.showSnackBar('Adding Successfully');
     } else {
       _navigationService.showSnackBar('Cannot add a flashcard');
@@ -127,9 +175,18 @@ class FlashcardViewModel extends ChangeNotifier {
     }
   }
 
+  onNavToAddFlashcard(Deck deck) {
+    _navigationService.navigate(AddCardPage(deck: deck,));
+  }
+
   Future<void> getStudiesCardsToday(List<int> flashcardKeys) async {
     studiesCards = _flashCardRepo.getFlashcardsToStudyToday(flashcardKeys);
     notifyListeners();
+  }
+
+  onSelectedMeaning(CacheMeaning? meaning) {
+      selectedMeaning = meaning;
+      notifyListeners();
   }
 
   onPageChange() {

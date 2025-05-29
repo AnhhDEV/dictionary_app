@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:dictionary/domain/model/dto/word_model.dart';
+import 'package:dictionary/domain/model/local/cache_meaning.dart';
 import 'package:dictionary/domain/model/local/cache_word.dart';
 import 'package:dictionary/domain/view_model/flashcard_viewmodel.dart';
 import 'package:dictionary/domain/view_model/word_viewmodel.dart';
@@ -20,7 +23,6 @@ class DetailPage extends StatelessWidget {
     final wordViewModel = Provider.of<WordViewModel>(context);
     final flashcardViewModel = Provider.of<FlashcardViewModel>(context);
 
-    final decks = flashcardViewModel.decks;
     final titleWord = word?.word ?? cacheWord?.word ?? '';
     final audioUrl = word?.getUrlAudio() ?? cacheWord?.audio;
     final phoneticText = word?.getPhonetic() ?? cacheWord?.phonetic ?? '';
@@ -42,6 +44,8 @@ class DetailPage extends StatelessWidget {
             .toList() ??
         [];
 
+    final cacheMeanings = meanings.map((e) => e.toCacheMeaning()).toList();
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
@@ -49,13 +53,12 @@ class DetailPage extends StatelessWidget {
         centerTitle: true,
         actions: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
             child: PopupMenuButton(
               itemBuilder: (context) {
                 return flashcardViewModel.decks.asMap().entries.map((deck) {
                   final index = deck.key;
                   final name = deck.value.name;
-
                   return PopupMenuItem<(int, String)>(
                     value: (index, name),
                     child: Text(name),
@@ -64,16 +67,61 @@ class DetailPage extends StatelessWidget {
               },
               onSelected: ((int, String) value) {
                 final int index = value.$1;
-                flashcardViewModel.addFlashcardToDeck(
-                  titleWord,
-                  audioUrl ?? '',
-                  phoneticText,
-                  meanings.map((e) => e.toCacheMeaning()).toList().first,
-                  "",
-                  flashcardViewModel.decks[index],
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return Consumer<FlashcardViewModel>(
+                      builder: (context, vm, _) {
+                        return  Dialog(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: SingleChildScrollView(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min, // QUAN TRỌNG
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  DropdownButton<CacheMeaning>(
+                                    isExpanded: true,
+                                    value: vm.selectedMeaning,
+                                    items: cacheMeanings.map((meaning) {
+                                      return DropdownMenuItem<CacheMeaning>(
+                                        value: meaning,
+                                        child: Text(meaning.partOfSpeech),
+                                      );
+                                    }).toList(),
+                                    onChanged: (value) {
+                                      vm.onSelectedMeaning(value);
+                                    },
+                                  ),
+                                  SizedBox(height: 16),
+                                  TextField(
+                                    controller: vm.note,
+                                    decoration: InputDecoration(
+                                      labelText: 'Translation',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  SizedBox(height: 16),
+                                  ElevatedButton(onPressed: () {
+                                    vm.addFlashcardToDeck(
+                                      titleWord,
+                                      audioUrl ?? '',
+                                      phoneticText,
+                                      vm.decks[index],
+                                    );
+                                  }, child: const Center(child: Text('Confirm')))
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }
                 );
+
               },
-              child: Icon(Icons.save),
+              child: const Icon(Icons.save),
             ),
           ),
         ],

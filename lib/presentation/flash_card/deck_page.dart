@@ -8,11 +8,23 @@ class DeckPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final FlashcardViewModel viewModel = Provider.of<FlashcardViewModel>(context, listen: true);
+    final FlashcardViewModel viewModel = Provider.of<FlashcardViewModel>(
+      context,
+      listen: true,
+    );
 
     return Scaffold(
-      appBar: AppBar(title: Text('Decks'), centerTitle: true),
+      appBar: AppBar(
+        title: Text('Decks'),
+        centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: IconButton(onPressed: () {}, icon: Icon(Icons.auto_graph)),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(
@@ -26,11 +38,13 @@ class DeckPage extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         TextField(
+                          autofocus: false,
                           controller: viewModel.name,
                           decoration: InputDecoration(hintText: 'Name'),
                         ),
                         SizedBox(height: 16),
                         TextField(
+                          autofocus: false,
                           controller: viewModel.description,
                           decoration: InputDecoration(hintText: 'Description'),
                         ),
@@ -63,16 +77,58 @@ class DeckPage extends StatelessWidget {
                 viewModel.onNavToFlashcard(viewModel.decks[index]);
               },
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8.0,
+                  vertical: 4,
+                ),
                 child: Card(
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          viewModel.decks[index].name,
-                          style: KTextStyle.textStyle16,
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              viewModel.decks[index].name,
+                              style: KTextStyle.textStyle16,
+                            ),
+                            Spacer(),
+                            PopupMenuButton<String>(
+                              icon: Icon(Icons.more_vert),
+                              onSelected: (value) {
+                                if (value == 'Delete') {
+                                  viewModel.removeDeck(viewModel.decks[index]);
+                                } else if(value == 'add') {
+                                  viewModel.onNavToAddFlashcard(viewModel.decks[index]);
+                                }
+                              },
+                              itemBuilder:
+                                  (context) => [
+                                    PopupMenuItem(
+                                      value: 'add',
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.add_circle_outline),
+                                          SizedBox(width: 5),
+                                          Text('Add new card'),
+                                        ],
+                                      ),
+                                    ),
+                                    PopupMenuItem<String>(
+                                      value: 'Delete',
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.delete_outline_outlined),
+                                          SizedBox(width: 5),
+                                          Text('Delete deck'),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                            ),
+                          ],
                         ),
                         Text(
                           viewModel.decks[index].description,
@@ -91,9 +147,9 @@ class DeckPage extends StatelessWidget {
                           style: KTextStyle.textStyle14,
                         ),
                         Text(
-                          'Learned words: ${viewModel.counts[index].remembered}',
+                          'Remembered words: ${viewModel.counts[index].remembered}',
                           style: KTextStyle.textStyle14,
-                        )
+                        ),
                       ],
                     ),
                   ),

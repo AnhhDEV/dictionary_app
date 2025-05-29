@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:dictionary/domain/model/local/deck.dart';
+import 'package:dictionary/domain/model/local/word_flashcard.dart';
 import 'package:dictionary/domain/view_model/flashcard_viewmodel.dart';
 import 'package:dictionary/util/k_textstyle.dart';
 import 'package:flutter/material.dart';
@@ -36,11 +39,12 @@ class _FlashcardPageState extends State<FlashcardPage> {
   }
 
   void _onQualitySelected(int quality) {
+    log("quality: $quality");
     final currentIndex = viewModel.currentPage;
     final flashcard = viewModel.studiesCards[currentIndex];
     viewModel.updateStatusOfFlashcard(flashcard, quality);
 
-    if (currentIndex < viewModel.studiesCards.length ) {
+    if (currentIndex < viewModel.studiesCards.length) {
       viewModel.onPageChange();
       _pageController.animateToPage(
         viewModel.currentPage,
@@ -58,7 +62,9 @@ class _FlashcardPageState extends State<FlashcardPage> {
     if (_cardKeys.length != flashcards.length) {
       _cardKeys
         ..clear()
-        ..addAll(List.generate(flashcards.length, (_) => GlobalKey<FlipCardState>()));
+        ..addAll(
+          List.generate(flashcards.length, (_) => GlobalKey<FlipCardState>()),
+        );
     }
 
     return Scaffold(
@@ -76,11 +82,14 @@ class _FlashcardPageState extends State<FlashcardPage> {
                 }
               });
             }
-            return Center(child: Text("Completed 🎉", style: KTextStyle.textStyle22));
+            return Center(
+              child: Text("Completed 🎉", style: KTextStyle.textStyle22),
+            );
           }
 
           final flashcard = flashcards[index];
-          final color = KTextStyle.cardColors[index % KTextStyle.cardColors.length];
+          final color =
+              KTextStyle.cardColors[index % KTextStyle.cardColors.length];
           final cardKey = _cardKeys[index];
 
           return Container(
@@ -90,7 +99,11 @@ class _FlashcardPageState extends State<FlashcardPage> {
                 key: cardKey,
                 direction: FlipDirection.HORIZONTAL,
                 flipOnTouch: false,
-                front: _buildFrontCard(flashcard, color, () => cardKey.currentState?.toggleCard()),
+                front: _buildFrontCard(
+                  flashcard,
+                  color,
+                  () => cardKey.currentState?.toggleCard(),
+                ),
                 back: _buildBackCard(flashcard, color),
               ),
             ),
@@ -100,7 +113,7 @@ class _FlashcardPageState extends State<FlashcardPage> {
     );
   }
 
-  Widget _buildFrontCard(flashcard, Color color, VoidCallback onFlip) {
+  Widget _buildFrontCard(WordFlashcard flashcard, Color color, VoidCallback onFlip) {
     return Card(
       color: color,
       elevation: 8,
@@ -114,8 +127,18 @@ class _FlashcardPageState extends State<FlashcardPage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(flashcard.meaning.partOfSpeech.toUpperCase(), style: const TextStyle(fontSize: 12, color: Colors.black87)),
-                Text(flashcard.word, style: const TextStyle(fontSize: 38, fontWeight: FontWeight.bold, color: Colors.black87)),
+                Text(
+                  flashcard.meaning.partOfSpeech.toUpperCase(),
+                  style: const TextStyle(fontSize: 12, color: Colors.black87),
+                ),
+                Text(
+                  flashcard.word,
+                  style: const TextStyle(
+                    fontSize: 38,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
                 Row(
                   children: [
                     InkWell(
@@ -123,7 +146,13 @@ class _FlashcardPageState extends State<FlashcardPage> {
                       child: const Icon(Icons.volume_up, color: Colors.black87),
                     ),
                     const SizedBox(width: 12),
-                    Text(flashcard.phonetic, style: const TextStyle(fontSize: 20, color: Colors.black87)),
+                    Text(
+                      flashcard.meaning.partOfSpeech,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        color: Colors.black87,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -134,9 +163,14 @@ class _FlashcardPageState extends State<FlashcardPage> {
               icon: const Text("flip", style: TextStyle(color: Colors.black87)),
               label: const Icon(Icons.arrow_forward, color: Colors.black87),
               style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 12,
+                ),
                 side: const BorderSide(color: Colors.black87),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
                 minimumSize: const Size(double.infinity, 48),
               ),
             ),
@@ -146,7 +180,7 @@ class _FlashcardPageState extends State<FlashcardPage> {
     );
   }
 
-  Widget _buildBackCard(flashcard, Color color) {
+  Widget _buildBackCard(WordFlashcard flashcard, Color color) {
     return Card(
       color: color,
       elevation: 8,
@@ -159,20 +193,32 @@ class _FlashcardPageState extends State<FlashcardPage> {
             const Spacer(),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: flashcard.meaning.definitions
-                  .map<Widget>((e) => Text("• $e", style: const TextStyle(fontSize: 18, color: Colors.black87)))
-                  .toList(),
+              children: [
+                ...flashcard.meaning.definitions.map<Widget>(
+                  (e) => Text(
+                    "• $e",
+                    style: const TextStyle(fontSize: 18, color: Colors.black87),
+                  ),
+                ),
+                SizedBox(height: 8),
+                if(flashcard.note.isNotEmpty)
+                  Text(
+                    '• ${flashcard.note}',
+                    style: TextStyle(fontSize: 18, color: Colors.black87),
+                  ),
+              ],
             ),
             const Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [3, 2, 1, 0].map((score) {
-                final emoji = ['😵‍', '😓', '🙂', '😎'][3 - score];
-                return TextButton(
-                  onPressed: () => _onQualitySelected(score),
-                  child: Text(emoji, style: const TextStyle(fontSize: 35)),
-                );
-              }).toList(),
+              children:
+                  [0, 1, 2, 3].map((score) {
+                    final emoji = ['😵‍', '😓', '🙂', '😎'][score];
+                    return TextButton(
+                      onPressed: () => _onQualitySelected(score),
+                      child: Text(emoji, style: const TextStyle(fontSize: 35)),
+                    );
+                  }).toList(),
             ),
           ],
         ),
