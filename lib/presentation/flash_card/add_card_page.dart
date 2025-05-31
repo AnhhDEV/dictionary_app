@@ -32,8 +32,7 @@ class _AddCardPageState extends State<AddCardPage> {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<FlashcardViewModel>(context);
-    
+    final viewModel = context.watch<FlashcardViewModel>();
     return Scaffold(
       appBar: AppBar(
         title: Text('Flashcard create '),

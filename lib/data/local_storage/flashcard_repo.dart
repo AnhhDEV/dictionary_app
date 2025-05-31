@@ -131,7 +131,7 @@ class FlashCardRepository {
         card.interval = 7;
       } else {
         card.interval =
-            (card.interval * 2.5).round(); // hoặc dùng easeFactor nếu muốn
+            (card.interval * 2.5).round();
       }
       card.nextReviewed = now.add(Duration(days: card.interval));
     }
