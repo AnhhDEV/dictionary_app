@@ -15,13 +15,15 @@ class DeckPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Decks'),
+        title: Text('Bộ flashcard'),
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: IconButton(onPressed: () {}, icon: Icon(Icons.auto_graph)),
+            child: IconButton(onPressed: () {
+                viewModel.getAllCards();
+            }, icon: Icon(Icons.auto_graph)),
           ),
         ],
       ),
@@ -40,13 +42,13 @@ class DeckPage extends StatelessWidget {
                         TextField(
                           autofocus: false,
                           controller: viewModel.name,
-                          decoration: InputDecoration(hintText: 'Name'),
+                          decoration: InputDecoration(hintText: 'Tên'),
                         ),
                         SizedBox(height: 16),
                         TextField(
                           autofocus: false,
                           controller: viewModel.description,
-                          decoration: InputDecoration(hintText: 'Description'),
+                          decoration: InputDecoration(hintText: 'Mô tả'),
                         ),
                         SizedBox(height: 24),
                         FilledButton(
@@ -54,7 +56,7 @@ class DeckPage extends StatelessWidget {
                             viewModel.createDeck();
                             viewModel.pop();
                           },
-                          child: Text('Create a deck'),
+                          child: Text('Tạo'),
                         ),
                       ],
                     ),
@@ -92,7 +94,10 @@ class DeckPage extends StatelessWidget {
                           children: [
                             Text(
                               viewModel.decks[index].name,
-                              style: KTextStyle.textStyle16,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16
+                              ),
                             ),
                             Spacer(),
                             PopupMenuButton<String>(
@@ -112,7 +117,7 @@ class DeckPage extends StatelessWidget {
                                         children: [
                                           Icon(Icons.add_circle_outline),
                                           SizedBox(width: 5),
-                                          Text('Add new card'),
+                                          Text('Thêm card mới'),
                                         ],
                                       ),
                                     ),
@@ -122,7 +127,7 @@ class DeckPage extends StatelessWidget {
                                         children: [
                                           Icon(Icons.delete_outline_outlined),
                                           SizedBox(width: 5),
-                                          Text('Delete deck'),
+                                          Text('Xóa bộ flashcard'),
                                         ],
                                       ),
                                     ),
@@ -131,24 +136,20 @@ class DeckPage extends StatelessWidget {
                           ],
                         ),
                         Text(
-                          viewModel.decks[index].description,
-                          style: KTextStyle.textStyle14,
+                          'Số lượng thẻ: ${viewModel.decks[index].flashcardKeys.length}',
+                          style: KTextStyle.textStyle16,
                         ),
                         Text(
-                          'Number of cards: ${viewModel.decks[index].flashcardKeys.length}',
-                          style: KTextStyle.textStyle14,
+                          'Từ chưa học: ${viewModel.counts[index].notLearned}',
+                          style: KTextStyle.textStyle16,
                         ),
                         Text(
-                          'Not learned words: ${viewModel.counts[index].notLearned}',
-                          style: KTextStyle.textStyle14,
+                          'Từ hay quên: ${viewModel.counts[index].fuzzy}',
+                          style: KTextStyle.textStyle16,
                         ),
                         Text(
-                          'Fuzzy words: ${viewModel.counts[index].fuzzy}',
-                          style: KTextStyle.textStyle14,
-                        ),
-                        Text(
-                          'Remembered words: ${viewModel.counts[index].remembered}',
-                          style: KTextStyle.textStyle14,
+                          'Từ đã học: ${viewModel.counts[index].remembered}',
+                          style: KTextStyle.textStyle16,
                         ),
                       ],
                     ),

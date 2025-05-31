@@ -1,15 +1,17 @@
 import 'dart:math';
 
+import 'package:dictionary/domain/model/local/deck.dart';
+import 'package:dictionary/domain/model/local/flashcard_data.dart';
 import 'package:dictionary/domain/model/local/word_flashcard.dart';
 import 'package:hive/hive.dart';
 
 import '../../domain/model/local/flashcard_status_count.dart';
 
 class FlashCardRepository {
-
   final Box<WordFlashcard> _box;
+  final Box<Deck> _deck;
 
-  FlashCardRepository(this._box);
+  FlashCardRepository(this._box, this._deck);
 
   Future<int> add(WordFlashcard word) async {
     return await _box.add(word);
@@ -22,6 +24,31 @@ class FlashCardRepository {
   WordFlashcard? getByKey(String key) {
     return _box.get(key);
   }
+
+  FlashcardData getAllFlashcards(List<int> deckKeys) {
+    List<WordFlashcard> remembered = [];
+    List<WordFlashcard> unremembered = [];
+
+    for (final key in deckKeys) {
+      final deck = _deck.get(key);
+      if (deck == null) continue;
+
+      final flashcards = getFlashcardsByKeys(deck.flashcardKeys);
+      for (final card in flashcards) {
+        if (card.reviewCount == 0) {
+          unremembered.add(card);
+        } else {
+          remembered.add(card);
+        }
+      }
+    }
+
+    return FlashcardData(remembered, unremembered);
+  }
+
+  bool isRemembered(WordFlashcard card) {
+    return card.reviewCount > 0;
+  } 
 
   List<WordFlashcard> getFlashcardsByKeys(List<int> keys) {
     return keys.map((key) => _box.get(key)).whereType<WordFlashcard>().toList();
@@ -57,9 +84,12 @@ class FlashCardRepository {
     return flashcardKeys
         .map((key) => _box.get(key))
         .whereType<WordFlashcard>()
-        .where((card) =>
-    card.reviewCount == 0 || card.nextReviewed.isBefore(now) ||
-        card.nextReviewed.isAtSameMomentAs(now))
+        .where(
+          (card) =>
+              card.reviewCount == 0 ||
+              card.nextReviewed.isBefore(now) ||
+              card.nextReviewed.isAtSameMomentAs(now),
+        )
         .toList();
   }
 
@@ -100,7 +130,8 @@ class FlashCardRepository {
       } else if (card.reviewCount == 3) {
         card.interval = 7;
       } else {
-        card.interval = (card.interval * 2.5).round(); // hoặc dùng easeFactor nếu muốn
+        card.interval =
+            (card.interval * 2.5).round(); // hoặc dùng easeFactor nếu muốn
       }
       card.nextReviewed = now.add(Duration(days: card.interval));
     }

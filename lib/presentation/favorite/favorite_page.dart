@@ -13,7 +13,7 @@ class FavoritePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Favorite Word', style: KTextStyle.textStyle18bold),
+        title: Text('Từ đã lưu', style: KTextStyle.textStyle18bold),
         centerTitle: true,
         automaticallyImplyLeading: true,
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,

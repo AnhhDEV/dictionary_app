@@ -12,7 +12,7 @@ class HistoryPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Searched Word', style: KTextStyle.textStyle18bold),
+        title: Text('Lịch sử tra cứu', style: KTextStyle.textStyle18bold),
         centerTitle: true,
         automaticallyImplyLeading: true,
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,

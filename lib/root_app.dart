@@ -33,7 +33,6 @@ class RootApp extends StatelessWidget {
         body: IndexedStack(
           index: currentIndex,
           children: [
-            HomePage(),
             SearchPage(),
             HistoryPage(),
             FavoritePage(),
@@ -42,11 +41,10 @@ class RootApp extends StatelessWidget {
         ),
         bottomNavigationBar: NavigationBar(
           destinations: [
-            NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
-            NavigationDestination(icon: Icon(Icons.search), label: 'Search'),
-            NavigationDestination(icon: Icon(Icons.history), label: 'History'),
-            NavigationDestination(icon: Icon(Icons.favorite), label: 'Favorite'),
-            NavigationDestination(icon: Icon(Icons.flash_auto), label: 'Deck'),
+            NavigationDestination(icon: Icon(Icons.search), label: 'Tìm kiếm'),
+            NavigationDestination(icon: Icon(Icons.history), label: 'Lịch sử'),
+            NavigationDestination(icon: Icon(Icons.favorite), label: 'Từ đã lưu'),
+            NavigationDestination(icon: Icon(Icons.folder_open), label: 'Flashcard'),
           ],
           onDestinationSelected: (value) {
             viewModel.onChangeIndex(value);

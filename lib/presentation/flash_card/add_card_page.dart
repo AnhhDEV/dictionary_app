@@ -1,3 +1,4 @@
+
 import 'package:dictionary/domain/view_model/flashcard_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -18,19 +19,21 @@ class _AddCardPageState extends State<AddCardPage> {
   final TextEditingController word = TextEditingController();
   final TextEditingController partOfSpeech = TextEditingController();
   final TextEditingController note = TextEditingController();
+  final TextEditingController audioController = TextEditingController();
 
   @override
   void dispose() {
     word.dispose();
     partOfSpeech.dispose();
     note.dispose();
+    audioController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<FlashcardViewModel>(context);
-
+    
     return Scaffold(
       appBar: AppBar(
         title: Text('Flashcard create '),
@@ -133,6 +136,38 @@ class _AddCardPageState extends State<AddCardPage> {
                     ),
                   ),
                   SizedBox(height: 25),
+                  SizedBox(
+                    height: 48,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        viewModel.pickAudio((audio) {
+                          audioController.text = audio;
+                        },);
+                      },
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.upload_outlined),
+                          SizedBox(width: 8),
+                          Text('Select audio file'),
+                          Spacer(),
+                          if (audioController.text.isNotEmpty)
+                            IconButton(
+                              onPressed: () {
+                                viewModel.playAudio(audioController.text);
+                              },
+                              icon: Icon(Icons.volume_up),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 25),
                   GestureDetector(
                     onTap: () {
                       if (formKey.currentState!.validate()) {
@@ -141,6 +176,7 @@ class _AddCardPageState extends State<AddCardPage> {
                           word.text,
                           partOfSpeech.text,
                           note.text,
+                          audioController.text
                         );
                       }
                     },

@@ -142,12 +142,12 @@ class _FlashcardPageState extends State<FlashcardPage> {
                 Row(
                   children: [
                     InkWell(
-                      onTap: () => viewModel.playUrlAudio(flashcard.audio),
+                      onTap: () => viewModel.playAudio(flashcard.audio),
                       child: const Icon(Icons.volume_up, color: Colors.black87),
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      flashcard.meaning.partOfSpeech,
+                      flashcard.phonetic,
                       style: const TextStyle(
                         fontSize: 20,
                         color: Colors.black87,

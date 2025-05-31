@@ -2,7 +2,6 @@ import 'package:dictionary/data/local_storage/deck_repo.dart';
 import 'package:dictionary/data/local_storage/flashcard_repo.dart';
 import 'package:dictionary/domain/model/local/deck.dart';
 import 'package:dictionary/domain/model/local/word_flashcard.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 
 import '../../domain/model/local/cache_meaning.dart';
@@ -28,7 +27,7 @@ class LocalDatabaseService {
     return (
     CacheWordRepository(cacheBox),
     SearchedWordRepository(searchedBox),
-    FlashCardRepository(flashcardBox),
+    FlashCardRepository(flashcardBox, deckBox),
     DeckRepository(deckBox)
     );
   }

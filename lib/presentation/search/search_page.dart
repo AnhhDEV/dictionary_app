@@ -25,6 +25,12 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   @override
+  void deactivate() {
+    super.dispose();
+    super.deactivate();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final wordViewModel = Provider.of<WordViewModel>(context);
     final systemViewModel = Provider.of<SystemViewModel>(context);
@@ -63,7 +69,6 @@ class _SearchPageState extends State<SearchPage> {
                 Theme.of(context).colorScheme.surface,
               ),
               onChanged: (value) {
-                print('Change$value');
                 wordViewModel.onSearchChanged();
               },
             ),
@@ -80,6 +85,7 @@ class _SearchPageState extends State<SearchPage> {
                   return InkWell(
                   splashColor: Colors.white60,
                   onTap: () {
+                    FocusScope.of(context).unfocus();
                     wordViewModel.onNavToDetail(wordViewModel.words[i], null);
                   },
                   child: Column(

@@ -50,11 +50,12 @@ class DetailPage extends StatelessWidget {
       appBar: AppBar(
         automaticallyImplyLeading: true,
         title: Text(titleWord),
-        centerTitle: true,
+        centerTitle: false,
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
             child: PopupMenuButton(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               itemBuilder: (context) {
                 return flashcardViewModel.decks.asMap().entries.map((deck) {
                   final index = deck.key;
@@ -121,7 +122,20 @@ class DetailPage extends StatelessWidget {
                 );
 
               },
-              child: const Icon(Icons.save),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                  borderRadius: BorderRadius.circular(16)
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.star),
+                    SizedBox(width: 5,),
+                    const Text('Lưu vào bộ')
+                  ],
+                ),
+              ),
             ),
           ),
         ],
